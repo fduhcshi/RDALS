@@ -52,7 +52,7 @@ estimation:
 baselines:
   # Linear head training parameters (for RLLS, BBSL, MLLS, CPMCN)
   head:
-    epochs: 5                        # HEAD_EPOCHS
+    epochs: 10                        # HEAD_EPOCHS
     lr: 0.002                        # HEAD_LR
     batch_size: 256                  # HEAD_BATCH_SIZE
     momentum: 0.9                    # HEAD_MOMENTUM
@@ -108,7 +108,7 @@ downstream:
 # Experiment Configuration
 # =============================================================================
 experiment:
-  num_trials: 3
+  num_trials: 5
   random_seed: 42
   exclude_extreme_ratio: 0.05      # Ratio of extreme values to exclude
 
