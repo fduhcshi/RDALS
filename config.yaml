@@ -1,0 +1,131 @@
+# RDALS Configuration File
+
+# =============================================================================
+# Paths - Point to existing data folder
+# =============================================================================
+paths:
+  data_root: "../data"
+  embedding_dir: "../data/all_embedding"
+  embedding_layer3_dir: "../data/all_embedding_layer3"
+  results_prefix: "./results"
+
+# =============================================================================
+# Dataset Configuration
+# =============================================================================
+dataset:
+  name: cifar10                    # cifar10 / cifar100 / mnist / 
+  num_classes: 10
+  source_samples: 10000
+  target_samples: 10000
+
+# =============================================================================
+# Model Configuration
+# =============================================================================
+model:
+  name: resnet18                   # resnet18 / resnet50 / vit_b_16
+  weights: DEFAULT
+  device: cpu
+  batch_size: 256
+  num_workers: 0
+
+# =============================================================================
+# Label Shift Configuration
+# =============================================================================
+shift:
+  name: dirichlet                  # dirichlet / tweak_one
+  domain: source                   # source / target
+  alpha: 1.0                       # Dirichlet concentration parameter
+  rho: 0.8                         # Tweak-one shift intensity
+  target_label: 0                  # Target class for tweak-one shift
+
+# =============================================================================
+# Estimation Parameters
+# =============================================================================
+estimation:
+  regularizer_lambda: 0.001         # Regularization strength
+  min_prob: 0.01                   # Minimum probability threshold
+  q_init_type: 2                   # Initialization type (1=uniform, 2=source prior)
+
+# =============================================================================
+# Baseline Method Parameters
+# =============================================================================
+baselines:
+  # Linear head training parameters (for RLLS, BBSL, MLLS, CPMCN)
+  head:
+    epochs: 5                        # HEAD_EPOCHS
+    lr: 0.002                        # HEAD_LR
+    batch_size: 256                  # HEAD_BATCH_SIZE
+    momentum: 0.9                    # HEAD_MOMENTUM
+    weight_decay: 0.0005             # HEAD_WEIGHT_DECAY
+  
+  rlls:
+    rho: 0.001                       # RLLS_RHO (null = auto compute)
+    alpha: 0.01                      # RLLS_ALPHA
+    delta: 0.05                      # RLLS_DELTA
+  
+  mlls:
+    em_max_iters: 100                 # MLLS_EM_MAX_ITERS
+    em_tol: 0.0001                   # MLLS_EM_TOL
+    em_eps: 1.0e-12                  # MLLS_EM_EPS
+  
+  bbse:
+    nonneg: true                     # BBSE_NONNEG
+    renormalize: true                # BBSE_RENORMALIZE
+  
+  split_train_calibration: true      # SPLIT_TRAIN_AND_CALIBRATION
+  calibration_ratio: 0.2             # CALIBRATION_RATIO
+
+# =============================================================================
+# CIFAR-10-C Corruption (optional)
+# =============================================================================
+corruption:
+  enabled: false                     # TARGET_CORRUPTION
+  name: brightness                   # TARGET_CORRUPTION_NAME
+  severity: 5                        # TARGET_CORRUPTION_SEVERITY (1-5)
+
+# =============================================================================
+# Downstream Task Configuration
+# =============================================================================
+downstream:
+  train: false                       # DOWNSTREAM_TRAIN
+  model: null                        # DOWNSTREAM_MODEL (null = same as feature extractor)
+  finetune_mode: 1                   # DOWNSTREAM_FINETUNE_MODE: 1=head-only, 2=layer4+head, 3=full
+  epochs: 20                         # DOWNSTREAM_EPOCHS (30 for cifar100)
+  head_lr: 0.001                     # DOWNSTREAM_HEAD_LR
+  head_batch_size: 256               # DOWNSTREAM_HEAD_BATCH_SIZE
+  backbone_lr: 0.0001                # DOWNSTREAM_BACKBONE_LR
+  weight_decay: 0.0005               # DOWNSTREAM_HEAD_WEIGHT_DECAY
+  momentum: 0.9                      # DOWNSTREAM_HEAD_MOMENTUM
+  num_workers: 4                     # DOWNSTREAM_NUM_WORKERS
+  freeze_bn: true                    # DOWNSTREAM_FREEZE_BN
+  eval_strategy: logit_bias            # reweight / logit_bias
+  logit_bias_gamma: 1.0              # DOWNSTREAM_LOGIT_BIAS_GAMMA
+  expectation_normalize: true        # DOWNSTREAM_EXPECTATION_NORMALIZE
+  eps: 1.0e-12                       # DOWNSTREAM_EPS
+  seed_base: null                    # DOWNSTREAM_SEED_BASE
+
+# =============================================================================
+# Experiment Configuration
+# =============================================================================
+experiment:
+  num_trials: 3
+  random_seed: 42
+  exclude_extreme_ratio: 0.05      # Ratio of extreme values to exclude
+
+# =============================================================================
+# Plotting Configuration
+# =============================================================================
+plotting:
+  show_std: false                     # PLOT_SHOW_STD
+  y_scale: symlog                    # PLOT_Y_SCALE: linear / symlog
+  y_symlog_linthresh: 0.0001         # PLOT_Y_SYMLOG_LINTHRESH
+  y_symlog_linscale: 1.0             # PLOT_Y_SYMLOG_LINSCALE
+  y_symlog_base: 10                  # PLOT_Y_SYMLOG_BASE
+
+# =============================================================================
+# Sweep Configuration (for parameter scanning)
+# =============================================================================
+sweep:
+  alpha_values: [0.1,0.5,1.0]    # Dirichlet alpha sweep
+  rho_values: [0.01,0.02,0.03,0.6,0.7,0.8]            # Tweak-one rho sweep
+  sample_sizes: [1000, 5000, 10000]
