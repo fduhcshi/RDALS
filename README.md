@@ -1,6 +1,6 @@
 # RDALS: Regularized Discriminative Alignment for Deep Representations under Label Shift
 
-A reference implementation of RDALS, a label shift estimation method based on Linear Discriminant Analysis (LDA) projection and regularized least squares optimization.
+A reference implementation of RDALS, a label shift estimation method based on Linear Discriminant Analysis (LDA) projection and regularized least squares optimization. 
 
 This repository is intended to make the RDALS implementation easy to inspect and run. It also includes optional comparison utilities for several common baselines, but it is not packaged as a fully tuned benchmark suite.
 
@@ -91,3 +91,4 @@ The baseline code is included so readers can inspect the comparison scaffold and
 ## License
 
 MIT License
+
