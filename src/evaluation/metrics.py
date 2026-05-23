@@ -67,7 +67,9 @@ def compute_w_emse(
         trials = config.experiment.num_trials
     
     if methods is None:
-        methods = ['rdals', 'rlls', 'bbsl', 'mlls']
+        # Default to the RDALS implementation; baseline comparisons should be
+        # requested explicitly by the caller.
+        methods = ['rdals']
     
     # Filter to available methods
     methods = [m for m in methods if m in METHODS]

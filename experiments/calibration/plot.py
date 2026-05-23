@@ -124,7 +124,7 @@ def plot_vertical_strip(
             rdals_y = float(_rdals_pick['MSE'].iloc[0])
             rdals_x = method_pos['RDALS']
             ax.annotate(
-                'Ours',
+                'RDALS',
                 xy=(rdals_x, rdals_y),
                 xytext=(6, 6),
                 textcoords='offset points',
@@ -220,7 +220,7 @@ def plot_calibration_boxplot(
     """
     if method_groups is None:
         method_groups = {
-            'Ours': ['rdals'],
+            'RDALS': ['rdals'],
             'MLLS': [k for k in data.keys() if k.startswith('mlls_')],
             'CPMCN': [k for k in data.keys() if k.startswith('cpmcn_')],
         }
@@ -260,7 +260,7 @@ def plot_calibration_boxplot(
     for group_name, group_methods in method_groups.items():
         group_in_order = [m for m in group_methods if m in order]
         n = len(group_in_order)
-        if group_name == 'Ours':
+        if group_name == 'RDALS':
             colors.extend([our_color] * n)
         elif group_name == 'MLLS':
             for i in range(n):
@@ -284,7 +284,7 @@ def plot_calibration_boxplot(
     # X-axis labels
     def _label(name: str) -> str:
         if name == 'rdals':
-            return 'Ours'
+            return 'RDALS'
         if '_' in name:
             suffix = name.split('_', 1)[1]
             return suffix.upper() if suffix.lower() != 'none' else 'None'
@@ -296,7 +296,7 @@ def plot_calibration_boxplot(
     # Legend
     legend_handles = []
     if any(m.startswith('rdals') or m == 'rdals' for m in order):
-        legend_handles.append(Patch(facecolor=our_color, alpha=0.6, label='Ours'))
+        legend_handles.append(Patch(facecolor=our_color, alpha=0.6, label='RDALS'))
     if any(m.startswith('mlls_') for m in order):
         legend_handles.append(Patch(facecolor=mlls_cmap(0.7), alpha=0.6, label='MLLS'))
     if any(m.startswith('cpmcn_') for m in order):

@@ -1,4 +1,8 @@
 # RDALS Configuration File
+#
+# This file is a lightweight example configuration for inspecting and running
+# the code. It is not intended to encode optimal hyperparameters, exhaustive
+# baseline tuning, or exact reproduction settings for every table.
 
 # =============================================================================
 # Paths - Point to existing data folder
@@ -48,6 +52,8 @@ estimation:
 
 # =============================================================================
 # Baseline Method Parameters
+# These settings support optional comparison scripts. They should be treated as
+# editable experiment settings, not as universally tuned baseline defaults.
 # =============================================================================
 baselines:
   # Linear head training parameters (for RLLS, BBSL, MLLS, CPMCN)

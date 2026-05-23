@@ -33,7 +33,7 @@ def plot_iteration_curves(
     x = x_full[:max_points]
     
     method_config = {
-        'rdals': {'label': 'RDALS (Ours)', 'color': '#d62728', 'linestyle': '-', 'marker': 's'},
+        'rdals': {'label': 'RDALS', 'color': '#d62728', 'linestyle': '-', 'marker': 's'},
         'mlls': {'label': 'MLLS', 'color': '#1f77b4', 'linestyle': '--', 'marker': 'o'},
         'cpmcn': {'label': 'CPMCN', 'color': '#ff7f0e', 'linestyle': ':', 'marker': '^'},
     }

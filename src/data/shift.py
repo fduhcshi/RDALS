@@ -31,8 +31,7 @@ def generate_dirichlet_distribution(
     # Sample from Dirichlet
     p_raw = np.random.dirichlet([alpha] * num_classes)
     
-    # Linear transformation to ensure minimum probability (same as original code)
-    # dist = (1 - k * min_prob) * p_raw + min_prob
+    # Smooth the sampled distribution to enforce a minimum class probability.
     k = num_classes
     dist = (1.0 - k * min_prob) * p_raw + min_prob
     
@@ -59,10 +58,10 @@ def generate_tweak_one_distribution(
     Returns:
         Probability distribution array of shape (num_classes,)
     """
-    # Same as original: dist[tgt] = rho, others = (1-rho)/(k-1)
+    # Assign rho to the selected class and distribute the remaining mass evenly.
     dist = np.full(num_classes, (1.0 - rho) / (num_classes - 1))
     dist[target_label] = rho
-    # Original code only checks min_prob, does not renormalize
+    # The construction already sums to one; only validate the minimum mass.
     if np.min(dist) < min_prob:
         raise ValueError(f"tweak_one distribution has class probability below {min_prob*100:.0f}%: min={np.min(dist):.4f}")
     return dist
@@ -71,7 +70,8 @@ def generate_tweak_one_distribution(
 def _allocate_counts(probs: np.ndarray, total_samples: int) -> np.ndarray:
     """
     Allocate sample counts per class based on probability distribution.
-    Same logic as original _alloc_counts function.
+    Uses floor allocation and assigns the remaining samples by largest
+    fractional remainder.
     
     Args:
         probs: Probability distribution
@@ -80,7 +80,7 @@ def _allocate_counts(probs: np.ndarray, total_samples: int) -> np.ndarray:
     Returns:
         Array of sample counts per class
     """
-    # Same as original: use floor, then distribute remaining by fractional part
+    # Use floor counts, then distribute remaining samples by fractional part.
     desired = total_samples * probs
     n = np.floor(desired).astype(int)
     remaining = int(total_samples - np.sum(n))
@@ -102,7 +102,7 @@ def _sample_indices_by_counts(
 ) -> np.ndarray:
     """
     Sample indices from labels according to per-class counts.
-    Same logic as original _sample_by_counts function.
+    Samples per-class indices according to the requested count vector.
     
     Args:
         labels: Array of labels
@@ -124,7 +124,7 @@ def _sample_indices_by_counts(
         replace = need > pool.size  # allow replacement if needed
         chosen = np.random.choice(pool, need, replace=replace)
         out.extend(chosen)
-    np.random.shuffle(out)  # shuffle at the end like original
+    np.random.shuffle(out)
     return np.array(out, dtype=int)
 
 

@@ -1,6 +1,8 @@
 """
-Baseline methods for label shift estimation.
-Copied directly from original baseline.py with minimal adaptation for new config structure.
+Optional baseline methods for label shift estimation.
+
+These implementations provide comparison utilities alongside RDALS. They share
+feature extraction and experiment configuration with the main evaluation code.
 """
 
 import numpy as np
@@ -38,7 +40,7 @@ def clear_stat_cache():
 
 
 def _train_linear_head(Z_S, Y_S, k, epochs=None, lr=None, batch_size=None, device='cpu', momentum=None, weight_decay=None, config=None):
-    """Train linear head - copied from original."""
+    """Train a linear classification head for baseline estimators."""
     d = Z_S.shape[1]
     model = nn.Linear(d, k).to(device)
     
@@ -56,7 +58,7 @@ def _train_linear_head(Z_S, Y_S, k, epochs=None, lr=None, batch_size=None, devic
         if weight_decay is None:
             weight_decay = getattr(head_cfg, 'weight_decay', 5e-4)
     else:
-        # Fallback to original defaults
+        # Standalone defaults used when no Config object is supplied.
         if epochs is None:
             epochs = 5
         if lr is None:
@@ -85,7 +87,7 @@ def _train_linear_head(Z_S, Y_S, k, epochs=None, lr=None, batch_size=None, devic
 
 
 def _build_stats(source_dset, target_dset, p_true, q_true, config=None):
-    """Build shared statistics - copied from original."""
+    """Build shared prediction statistics for baseline estimators."""
     if config is None:
         config = get_config()
     
@@ -98,7 +100,7 @@ def _build_stats(source_dset, target_dset, p_true, q_true, config=None):
     split_flag = config.baselines.split_train_calibration
     ratio = config.baselines.calibration_ratio
     if split_flag:
-        rng = np.random.default_rng()  # Fixed seed for reproducibility
+        rng = np.random.default_rng()
         calib_idx_list = []
         train_idx_list = []
         for c in range(k):
@@ -174,7 +176,7 @@ def _build_stats(source_dset, target_dset, p_true, q_true, config=None):
 
 
 def _get_stats_cached(source_dset, target_dset, p_true, q_true, config=None):
-    """Get cached stats - copied from original."""
+    """Return cached shared statistics for a source/target dataset pair."""
     if config is None:
         config = get_config()
     key = (
@@ -192,12 +194,12 @@ def _get_stats_cached(source_dset, target_dset, p_true, q_true, config=None):
 
 
 def _compute_3deltaC(n_class, n_train, delta):
-    """Compute regularization term - copied from original."""
+    """Compute the RLLS finite-sample regularization factor."""
     return 3*(2*np.log(2*n_class/delta)/(3*n_train) + np.sqrt(2*np.log(2*n_class/delta)/n_train))
 
 
 def bs_rlls(source_dset, target_dset, p_true, q_true, train_downstream=False, config=None, seed=None):
-    """RLLS method - copied from original."""
+    """Estimate label shift with RLLS."""
     if not HAS_CVXPY:
         raise ImportError("CVXPY is required for RLLS method")
     if config is None:
@@ -231,7 +233,7 @@ def bs_rlls(source_dset, target_dset, p_true, q_true, train_downstream=False, co
     w = 1 + np.array(theta.value).reshape(-1)
     w = np.maximum(w, 1e-8)
     
-    # Get p_emp from source dataset labels - same as original
+    # Estimate the empirical source prior from source dataset labels.
     try:
         if hasattr(source_dset, 'indices') and hasattr(source_dset, 'dataset') and hasattr(source_dset.dataset, 'targets'):
             y_src = np.array(source_dset.dataset.targets, dtype=int)[np.array(source_dset.indices, dtype=int)]
@@ -262,7 +264,7 @@ def bs_rlls(source_dset, target_dset, p_true, q_true, train_downstream=False, co
 
 
 def bs_oracle(source_dset, target_dset, p_true, q_true, train_downstream=False, config=None, seed=None):
-    """Oracle method - copied from original."""
+    """Return the true target prior as an oracle reference."""
     if config is None:
         config = get_config()
     q_hat = np.array(q_true, dtype=float).copy()
@@ -277,7 +279,7 @@ def bs_oracle(source_dset, target_dset, p_true, q_true, train_downstream=False, 
 
 
 def bs_bbsl(source_dset, target_dset, p_true, q_true, train_downstream=False, config=None, seed=None):
-    """BBSL method - copied from original."""
+    """Estimate label shift with BBSL/BBSE."""
     if config is None:
         config = get_config()
     
@@ -294,7 +296,7 @@ def bs_bbsl(source_dset, target_dset, p_true, q_true, train_downstream=False, co
     else:
         w = w_lin
     
-    # Get p_emp from source dataset labels - same as original
+    # Estimate the empirical source prior from source dataset labels.
     try:
         if hasattr(source_dset, 'indices') and hasattr(source_dset, 'dataset') and hasattr(source_dset.dataset, 'targets'):
             y_src = np.array(source_dset.dataset.targets, dtype=int)[np.array(source_dset.indices, dtype=int)]
@@ -326,7 +328,7 @@ def bs_bbsl(source_dset, target_dset, p_true, q_true, train_downstream=False, co
 
 
 def bs_naive(source_dset, target_dset, p_true, q_true, train_downstream=False, config=None, seed=None):
-    """Naive method - copied from original."""
+    """Use target predicted-label frequencies as a naive prior estimate."""
     if config is None:
         config = get_config()
     
@@ -342,7 +344,7 @@ def bs_naive(source_dset, target_dset, p_true, q_true, train_downstream=False, c
     if s > 0:
         q_hat = q_hat / s
     
-    # Get p_emp from source dataset labels - same as original
+    # Estimate the empirical source prior from source dataset labels.
     try:
         if hasattr(source_dset, 'indices') and hasattr(source_dset, 'dataset') and hasattr(source_dset.dataset, 'targets'):
             y_src = np.array(source_dset.dataset.targets, dtype=int)[np.array(source_dset.indices, dtype=int)]
@@ -368,7 +370,7 @@ def bs_naive(source_dset, target_dset, p_true, q_true, train_downstream=False, c
 
 
 def bs_mlls(source_dset, target_dset, p_true, q_true, train_downstream=False, config=None, seed=None):
-    """MLLS method - copied from original."""
+    """Estimate label shift with MLLS and calibrated predictions."""
     if not HAS_ABSTENTION:
         raise ImportError("abstention package is required for MLLS method")
     if config is None:
@@ -383,7 +385,7 @@ def bs_mlls(source_dset, target_dset, p_true, q_true, train_downstream=False, co
     base_time = float(stats.get('prep_time_sec', stats.get('shared_time_sec', 0.0)))
     
     if logits_calib is None or logits_T is None or Y_calib is None or logits_S_full is None:
-        # Fallback - same as original
+        # Recompute logits if the shared-statistics cache is unavailable.
         device = torch.device(config.model.device)
         extractor = FeatureExtractor(config=config)
         Z_S, Y_S = extractor.extract_features(source_dset)
@@ -391,7 +393,7 @@ def bs_mlls(source_dset, target_dset, p_true, q_true, train_downstream=False, co
         split_flag = config.baselines.split_train_calibration
         ratio = config.baselines.calibration_ratio
         if split_flag:
-            rng = np.random.default_rng(seed=42)  # Fixed seed for reproducibility
+            rng = np.random.default_rng(seed=42)
             calib_idx_list, train_idx_list = [], []
             for c in range(k):
                 c_idx = np.where(Y_S == c)[0]
@@ -414,7 +416,7 @@ def bs_mlls(source_dset, target_dset, p_true, q_true, train_downstream=False, co
             logits_T = head(torch.from_numpy(Z_T).float().to(device)).cpu().numpy()
             logits_S_full = head(torch.from_numpy(Z_S).float().to(device)).cpu().numpy()
     
-    # BCTS calibration - same as original
+    # Bias-corrected temperature scaling calibration.
     t_extra0 = time.time()
     labels_onehot = np.zeros((len(Y_calib), k), dtype=float)
     if len(Y_calib) > 0:
@@ -429,7 +431,7 @@ def bs_mlls(source_dset, target_dset, p_true, q_true, train_downstream=False, co
     P_S = calibrate(logits_S_full)
     p_s = P_S.mean(axis=0)
     
-    # EM algorithm - same as original
+    # EM update for the target class prior.
     q = np.array(p_s, dtype=float).copy()
     q = q / (q.sum() + 1e-12)
     max_iters = config.baselines.mlls.em_max_iters
@@ -463,7 +465,7 @@ def bs_mlls(source_dset, target_dset, p_true, q_true, train_downstream=False, co
 
 
 def bs_cpmcn(source_dset, target_dset, p_true, q_true, train_downstream=False, config=None, seed=None):
-    """CPMCN method - copied from original."""
+    """Estimate label shift with CPMCN."""
     if not HAS_ABSTENTION:
         raise ImportError("abstention package is required for CPMCN method")
     if config is None:
@@ -477,7 +479,7 @@ def bs_cpmcn(source_dset, target_dset, p_true, q_true, train_downstream=False, c
     base_time = float(stats.get('prep_time_sec', stats.get('shared_time_sec', 0.0)))
     
     if logits_calib is None or logits_T is None or Y_calib is None:
-        # Fallback - same as original
+        # Recompute logits if the shared-statistics cache is unavailable.
         device = torch.device(config.model.device)
         extractor = FeatureExtractor(config=config)
         Z_S, Y_S = extractor.extract_features(source_dset)
@@ -485,7 +487,7 @@ def bs_cpmcn(source_dset, target_dset, p_true, q_true, train_downstream=False, c
         split_flag = config.baselines.split_train_calibration
         ratio = config.baselines.calibration_ratio
         if split_flag:
-            rng = np.random.default_rng(seed=42)  # Fixed seed for reproducibility
+            rng = np.random.default_rng(seed=42)
             calib_idx_list, train_idx_list = [], []
             for c in range(k):
                 c_idx = np.where(Y_S == c)[0]
@@ -507,7 +509,7 @@ def bs_cpmcn(source_dset, target_dset, p_true, q_true, train_downstream=False, c
             logits_calib = head(torch.from_numpy(Z_calib_arr).float().to(device)).cpu().numpy()
             logits_T = head(torch.from_numpy(Z_T).float().to(device)).cpu().numpy()
     
-    # BCTS calibration - same as original
+    # Bias-corrected temperature scaling calibration.
     t_extra0 = time.time()
     labels_onehot = np.zeros((len(Y_calib), k), dtype=float)
     if len(Y_calib) > 0:
@@ -520,7 +522,7 @@ def bs_cpmcn(source_dset, target_dset, p_true, q_true, train_downstream=False, c
     calibrate = calib(valid_preacts=logits_calib, valid_labels=labels_onehot)
     P_T = calibrate(logits_T)
     
-    # Get p_base from source dataset labels - same as original
+    # Estimate the empirical source prior from source dataset labels.
     try:
         if hasattr(source_dset, 'indices') and hasattr(source_dset, 'dataset') and hasattr(source_dset.dataset, 'targets'):
             y_src = np.array(source_dset.dataset.targets, dtype=int)[np.array(source_dset.indices, dtype=int)]
@@ -534,7 +536,7 @@ def bs_cpmcn(source_dset, target_dset, p_true, q_true, train_downstream=False, c
     else:
         p_base = counts / counts.sum()
     
-    # CPMCN objective - same as original
+    # CPMCN objective over nonnegative importance weights.
     eps = 1e-12
     def objective(w):
         w = np.maximum(w, 0.0)

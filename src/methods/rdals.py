@@ -112,7 +112,7 @@ class LabelShiftEstimator:
         """
         k = self.k
         
-        # Same as original: use L2 norm (with sqrt), not squared L2
+        # Use the unsquared L2 objective used by the RDALS estimator.
         def objective(Q: np.ndarray) -> float:
             residual = A @ Q - b
             eps = 1e-12

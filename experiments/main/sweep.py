@@ -48,7 +48,9 @@ def sweep_alpha(
         config = get_config()
     
     if methods is None:
-        methods = ['rdals', 'rlls', 'bbsl', 'mlls']
+        # Public sweep defaults track RDALS only. Pass --methods to include
+        # optional baselines in comparison sweeps.
+        methods = ['rdals']
     
     if trials is None:
         trials = config.experiment.num_trials
@@ -144,7 +146,9 @@ def sweep_rho(
         config = get_config()
     
     if methods is None:
-        methods = ['rdals', 'rlls', 'bbsl', 'mlls']
+        # Public sweep defaults track RDALS only. Pass --methods to include
+        # optional baselines in comparison sweeps.
+        methods = ['rdals']
     
     if trials is None:
         trials = config.experiment.num_trials
@@ -243,7 +247,9 @@ def sweep_sample_size(
         config = get_config()
     
     if methods is None:
-        methods = ['rdals', 'rlls', 'bbsl', 'mlls']
+        # Public sweep defaults track RDALS only. Pass --methods to include
+        # optional baselines in comparison sweeps.
+        methods = ['rdals']
     
     if trials is None:
         trials = config.experiment.num_trials
@@ -323,7 +329,7 @@ def main():
     parser.add_argument('--values', type=float, nargs='+', default=None,
                         help='Values to sweep over')
     parser.add_argument('--methods', type=str, nargs='+', default=None,
-                        help='Methods to evaluate')
+                        help='Methods to evaluate (default: rdals; optional: rlls bbsl mlls cpmcn)')
     parser.add_argument('--trials', type=int, default=None, help='Number of trials')
     
     args = parser.parse_args()

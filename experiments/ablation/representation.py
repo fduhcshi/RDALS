@@ -273,7 +273,7 @@ def run_representation_ablation(
     from src.methods.rdals import rdals_method
     
     methods = {
-        'LDA (Ours)': rdals_method,
+        'LDA (RDALS)': rdals_method,
         'PCA': pca_projection_method,
         'Random': random_projection_method,
     }

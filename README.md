@@ -1,6 +1,8 @@
 # RDALS: Regularized Discriminative Alignment for Deep Representations under Label Shift
 
-A novel framework for label shift estimation using Linear Discriminant Analysis (LDA) projection and regularized least squares optimization.
+A reference implementation of RDALS, a label shift estimation method based on Linear Discriminant Analysis (LDA) projection and regularized least squares optimization.
+
+This repository is intended to make the RDALS implementation easy to inspect and run. It also includes optional comparison utilities for several common baselines, but it is not packaged as a fully tuned benchmark suite.
 
 ## Installation
 
@@ -23,7 +25,7 @@ RDALS/
 │   ├── models/                  # Feature extraction
 │   │   └── extractor.py         # Pre-trained model feature extraction
 │   ├── methods/                 # Label shift estimation methods
-│   │   ├── rdals.py             # Our method: RDALS
+│   │   ├── rdals.py             # RDALS implementation
 │   │   └── baselines.py         # RLLS, BBSL, MLLS, CPMCN
 │   ├── evaluation/              # Evaluation utilities
 │   │   └── metrics.py           # MSE computation, multi-trial runner
@@ -42,30 +44,23 @@ RDALS/
 
 ## Quick Start
 
-### Run Main Experiment
+### Run RDALS
 
 ```bash
-# Run with default settings
+# Run RDALS with the default example configuration
 python -m experiments.main.run
-
-# Specify methods and trials
-python -m experiments.main.run --methods rdals rlls bbsl mlls --trials 50
 
 # Quick test (single trial, fixed seed)
 python -m experiments.main.run --trials 1 --seed 42
 ```
 
-### Run Parameter Sweep
+### Optional Baseline Comparisons
+
+Baseline implementations are provided for convenience and for reproducing comparison-style workflows. They are not run by default.
 
 ```bash
-# Sweep Dirichlet alpha (smaller alpha = larger shift)
-python -m experiments.main.sweep --sweep alpha --values 0.1 0.5 1.0 2.0 5.0 --trials 50
-
-# Sweep tweak_one rho (larger rho = larger shift)
-python -m experiments.main.sweep --sweep rho --values 0.1 0.3 0.5 0.7 0.9 --trials 50
-
-# Sweep sample size
-python -m experiments.main.sweep --sweep sample_size --values 100 500 1000 2000 5000 --trials 50
+# Run RDALS together with selected baselines
+python -m experiments.main.run --methods rdals rlls bbsl mlls cpmcn --trials 50
 ```
 
 ## Configuration
@@ -77,15 +72,21 @@ Edit `config.yaml` to customize:
 - **Estimation parameters**: regularization, projection dimensions
 - **Baseline parameters**: RLLS, MLLS, BBSL, CPMCN settings
 
+The checked-in `config.yaml` is a lightweight example configuration for code inspection and basic execution checks. It should not be read as a claim of optimal hyperparameters for RDALS, as a fully tuned setting for every baseline, or as a guarantee of reproducing exact paper tables.
+
 ## Methods
 
 | Method | Description |
 |--------|-------------|
-| **RDALS** (Ours) | LDA projection + regularized least squares |
+| **RDALS** | LDA projection + regularized least squares |
 | **RLLS** | Regularized Learning under Label Shift |
 | **BBSL** | Black Box Shift Learning |
 | **MLLS** | Maximum Likelihood Label Shift |
 | **CPMCN** | Calibrated Predictions Matching Class priors Network |
+
+## Notes on Baselines
+
+The baseline code is included so readers can inspect the comparison scaffold and run optional comparisons from the same interface. Baseline behavior can be sensitive to calibration splits, head-training hyperparameters, random seeds, and dataset/model choices. For serious benchmarking, tune each baseline according to its own recommended protocol and report the corresponding configuration.
 
 ## License
 

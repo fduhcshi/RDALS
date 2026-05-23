@@ -54,7 +54,9 @@ def run_experiment(
         train_downstream = config.downstream.train
     
     if methods is None:
-        methods = ['rdals', 'rlls', 'bbsl', 'mlls', 'cpmcn']
+        # Keep the public default focused on the proposed method. Baselines are
+        # available via --methods for optional comparison runs.
+        methods = ['rdals']
     
     print(f"Running experiment with {len(methods)} methods, {config.experiment.num_trials} trials")
     print(f"Dataset: {config.dataset.name}")
@@ -99,7 +101,7 @@ def main():
     parser = argparse.ArgumentParser(description='Run label shift estimation experiment')
     parser.add_argument('--config', type=str, default=None, help='Path to config.yaml')
     parser.add_argument('--methods', type=str, nargs='+', default=None,
-                        help='Methods to evaluate (e.g., rdals rlls bbsl)')
+                        help='Methods to evaluate (default: rdals; optional: rlls bbsl mlls cpmcn)')
     parser.add_argument('--trials', type=int, default=None, help='Number of trials')
     parser.add_argument('--seed', type=int, default=None, help='Random seed (trial i uses seed+i)')
     parser.add_argument('--downstream', action='store_true', default=None,

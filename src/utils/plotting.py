@@ -18,7 +18,7 @@ matplotlib.rcParams['lines.markersize'] = 6
 
 # Method display names
 LEGEND_ALIAS: Dict[str, str] = {
-    'rdals': 'RDALS (Ours)',
+    'rdals': 'RDALS',
     'rlls': 'RLLS',
     'bbsl': 'BBSL',
     'mlls': 'MLLS',

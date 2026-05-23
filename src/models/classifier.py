@@ -128,11 +128,10 @@ def train_weighted_head(
     p_emp = np.bincount(Y_S.astype(int), minlength=num_classes).astype(float)
     p_emp = p_emp / max(p_emp.sum(), 1.0)
     
-    # Compute class weights from w_hat
-    # Weight for class c = w_hat[c] * (1 / p_emp[c]) normalized
+    # Use the estimated importance weights as class weights.
     eps = 1e-12
     class_weight = w_hat.copy()
-    # Normalize to have mean 1
+    # Normalize the loss scale for stable head training.
     class_weight = class_weight / (class_weight.mean() + eps)
     
     finetune_mode = config.downstream.finetune_mode
@@ -209,7 +208,7 @@ def train_weighted_head(
     
     else:
         # Full finetuning (mode 3)
-        raise NotImplementedError("Full finetuning mode not yet implemented")
+        raise NotImplementedError("Full finetuning mode is not implemented in this release")
     
     # Compute metrics
     acc = float(np.mean(preds == Y_T))
